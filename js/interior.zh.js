@@ -268,7 +268,7 @@ function musterRoll(A){const L=[], add=(g,t)=>L.push({g,t}), lv=id=>S.fac[id].n>
   for(const [id,nm] of [['mo','国防部'],['gs','总参谋部'],['mvd','内务部']]){const v=S.pts[id],hi=id==='mvd'?50:65,lo=id==='mvd'?30:45; add(v>=lo?1:0,nm+' ('+v+'% 支持你们，拒绝 '+hi+'): '+(v>=hi?'部队拒绝执行命令':v>=lo?'部队犹豫，以半数兵力推进':'部队正在执行命令'));}
   {const o=S.omon==null?100:S.omon; add(o<=60?1:0,'特警： '+(o<=60?'犹豫，以半数兵力推进':'正在执行命令')+' （备战度 '+o+'%)');}
   if(S.pts.mer>=60){A.medK=(A.medK||1)*.85;add(1,'市政府没有召回救护车：伤亡减少15%');} else if(S.pts.mer<25&&S.bar>0){S.bar--;add(0,'市政府提供了推土机：黎明前拆除了一排街垒');}
-  if(S.pts.smo>=60){A.incoming+=500;add(1,'斯摩棱斯克方向有一支队伍过来：一小时后 +500人');}
+  if(S.pts.smo>=60){A.incoming+=500;add(1,'有一支队伍从斯摩棱斯克广场赶来：一小时后 +500人');}
   if(S.city>=60){A.incoming+=600;add(1,'莫斯科支持你们：一小时后墙边又有600人');} else if(S.city<=25){const d=Math.round(S.ppl*.15);S.ppl-=d;add(0,'莫斯科在电视上观看强攻： '+fmt(d)+' 人夜间离开了墙边');}
   // пресса
   for(const o of OUTLETS){const st=outSt(S,o), f=o.fin&&o.fin[st]; if(!f||!f.t)continue; const x=f.fx;
@@ -379,7 +379,7 @@ function finaleGo(){const A=S.A; if(!A||A.card!=='fin')return; A.card=0; $('moda
 function alphaCard(){
   const A=S.A;
   const DS=[[S.leg>=50,'合法性不低于50（现在 '+S.leg+')'],[A.air>=40,'媒体声量不低于40（现在 '+Math.round(A.air)+')']], draw=DS.every(x=>x[0]);
-  $('modal-win').innerHTML=`<h2>出入口的“阿尔法”</h2><div class="sub">${A.allRef?'没有一支部队执行命令。克里姆林宫还剩最后的预备队：“阿尔法”和“飞马”。':'强攻已四小时，大楼仍未拿下。克里姆林宫投入最后的预备队：“阿尔法”和“飞马”。'} 他们的军官不想向议会开火，并提议以他们自己的担保带领人员撤出。结局如何，取决于全国是否在注视他们。</div>`+
+  $('modal-win').innerHTML=`<h2>出入口的“阿尔法”</h2><div class="sub">${A.allRef?'没有一支部队执行命令。克里姆林宫还剩最后的预备队：“阿尔法”与“信号旗”。':'强攻已四小时，大楼仍未拿下。克里姆林宫投入最后的预备队：“阿尔法”与“信号旗”。'} 他们的军官不想向议会开火，并提议以他们自己的担保带领人员撤出。结局如何，取决于全国是否在注视他们。</div>`+
     [{t:'放“阿尔法”进来，并在其担保下撤出',d:draw?'<span class="p">中立结局：</span>“阿尔法”当着摄像机拒绝强攻。你们失去大楼，但叶利钦已无法指挥。':'<span class="n">失败：</span>悄无声息地投降。要让结局变为中立，需要 '+DS.filter(x=>!x[0]).map(x=>x[1]).join(' 和 ')+'.'},
      {t:'通过无线电向军官喊话',d:S.A.air>=10?`媒体声量 −10 · “阿尔法”拒绝强攻并撤离的几率为 ${Math.round((.25+S.leg/250)*100)}%。${S.A.allRef?'那时就没有人可以强攻了':'与其余部队的战斗继续'}`:'<span class="n">需要 10 媒体声量</span>'},
      {t:'战斗',d:'“阿尔法”将强攻第二十号入口。这是克里姆林宫最强的部队。'}]
@@ -571,7 +571,7 @@ const AIR=[
 ];
 const airGain=()=>1+Math.floor(OUTLETS.filter(o=>outSt(S,o)==='vs').length/4)+(S.pts.ost>=100?2:0);
 const airCost=o=>o.cost*(S.flags.noComms?2:1);
-function airState(i){const o=AIR[i],A=S.A; if(A.airUsed)return '这个时候已经出来了'; if(S.A.air<airCost(o))return '需要 '+airCost(o)+' 媒体声量'; const r=o.req?o.req():true; return r;}
+function airState(i){const o=AIR[i],A=S.A; if(A.airUsed)return '本小时已发出呼吁'; if(S.A.air<airCost(o))return '需要 '+airCost(o)+' 点媒体声量'; const r=o.req?o.req():true; return r;}
 function openAir(){const A=S.A; if(!A||screen!=='assault'||A.card)return;
   $('modal-win').innerHTML=`<h2>白宫的媒体声量</h2><div class="sub">媒体声量：<b style="color:var(--paper)">${Math.round(A.air)}</b>（满分100），你们的媒体每小时 +${airGain()}。媒体声量高时，世界都在看：进攻减弱，部队士气下降，从60起，动摇的部队可能停下。呼吁会消耗媒体声量。每小时一次请求，命令不消耗媒体声量。${S.flags.noComms?' <span class="n">通讯中断，只能通过外国人向外界发声：一切成本翻倍。</span>':''}媒体声量越高，进攻越弱，你们也越容易被听见。</div><div class="app2">`+
     AIR.map((o,i)=>{const st=airState(i);return `<div class="law${st!==true?' lock':''}" data-i="${i}"><div class="t">${o.t} <span class="cst">${airCost(o)?"媒体声量 −"+airCost(o):"免费"}</span></div><div class="e">${st===true?o.d():`<span class="n">${st}</span>`}</div></div>`;}).join('')+
