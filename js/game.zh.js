@@ -157,12 +157,12 @@ addEventListener('pointerdown',()=>Music.sync());addEventListener('keydown',()=>
 
 // ---------- intro: a slide show before a new game ----------
 const INTRO=[
-  {pic:['wh'],      st:'莫斯科 · 1993', t:'苏联已经不存在两年了。物价放开，存款烧光，工厂停工没有工资。国家依据1978年的俄罗斯联邦宪法生活，这部宪法已经被修改了几百次。'},
+  {pic:['wh'],      st:'莫斯科 · 1993', t:'苏联已经不存在两年了。物价放开，存款烧光，工厂停工没有工资。国家依据1978年《俄罗斯苏维埃联邦社会主义共和国宪法》生活，这部宪法已经被修改了几百次。'},
   {pic:['yeltsin'], st:'总统',      t:'鲍里斯·叶利钦于1991年6月当选。他在推行市场改革，认为议会不让他把改革进行到底。他需要一部赋予总统强大权力的新宪法。'},
-  {pic:['hasb'],    st:'议会',      t:'人民代表大会和最高苏维埃于1990年选出。根据现行宪法，国家最高权力属于他们。最高苏维埃主席是鲁斯兰·哈斯布拉托夫，昨天还是叶利钦的盟友。'},
+  {pic:['hasb'],    st:'议会',      t:'俄罗斯人民代表大会和最高苏维埃于1990年选出。根据现行宪法，国家最高权力属于他们。最高苏维埃主席是鲁斯兰·哈斯布拉托夫，昨天还是叶利钦的盟友。'},
   {pic:['yeltsin','hasb'], st:'二元权力', t:'1992年12月，代表大会没有批准盖达尔出任总理。1993年3月，它试图罢免总统，但差了72票。现在，每一项法律和每一道法令都会被另一方推翻。'},
   {pic:['wh'],      st:'4月25日 · “是，是，不，是”', t:'在全民公投中，多数人支持总统及其改革。但对谁来说都不会有提前选举。双方都宣布自己赢了。'},
-  {pic:['rutskoy'], st:'副总统', t:'亚历山大·鲁茨科伊是将军，苏联英雄，他已站到议会一边，并承诺拿出关于部长们的一箱箱黑材料。9月1日，叶利钦以总统令将他撤职。最高苏维埃认为该令违法。'},
+  {pic:['rutskoy'], st:'副总统', t:'亚历山大·鲁茨科伊是将军，苏联英雄，他已站到议会一边，并承诺拿出关于部长们的一箱箱黑材料。9月1日，叶利钦以总统令暂停他的职务。最高苏维埃认为该令违法。'},
   {pic:['wh'],      st:'9月14日',    t:'你们就是最高苏维埃。你们有红普列斯尼亚滨河路上的一座大楼、265名议员、法律，以及那些来到它墙下的人。总统答应给军队一个“决定性的九月”。接下来会怎样，没人知道。'},
 ];
 let introI=0,introN=0,introT=null,introGo=null;
@@ -247,7 +247,7 @@ function renderHud(p){
   $(p+'-date').textContent=dateStr(S.day).toUpperCase();
   $(p+'-wd').textContent=WD[dateOf(S.day).getDay()]+' · '+PHASE_NM[S.phase];
   const cur=snap();
-  const R=[['leg','合法性'],['dep','议员'],['ppl','民众'],['mil','民兵'],['gun','武器'],['med','舆论'],['sup','补给']];
+  const R=[['leg','合法性'],['dep','议员'],['ppl','民众'],['mil','民兵'],['gun','武器'],['med','媒体声量'],['sup','补给']];
   if(S.phase===1)R.splice(3,1);
   $(p+'-res').innerHTML=R.map(([k,nm])=>{const d=Math.round(cur[k]-(S.am?S.am[k]:cur[k]));
     let dl=d>0?`<span class="dlt up">+${fmt(d)}</span>`:d<0?`<span class="dlt dn">−${fmt(-d)}</span>`:'';
@@ -392,14 +392,14 @@ let etherSel=null;
 function outWayState(o,k){const W=OUT_WAYS[k]; if(S.appeals.pull)return '今天已经与一家编辑部打过交道'; return W.req(S,o);}
 function outWin(o,k){const W=OUT_WAYS[k]; if(outWayState(o,k)!==true||outLocked(S,o))return; const st=outSt(S,o);
   apply(W.cost(o)); if(W.order)S.orders--; if(W.run)W.run(S); S.appeals.pull=1; S.did.media=1; Sfx.play(k==='p'?'crowd':k==='z'?'stamp':'paper');
-  if(W.chance&&Math.random()>W.chance){apply({city:-3}); log('播出时间： '+o.nm+' ——施压失败，编辑部在写“闹事者”。');}
-  else{S.out[o.id]=st==='kr'?'neu':'vs'; log('播出时间： '+o.nm+(st==='kr'?' 不再为克里姆林宫唱歌。':' 现在把发言权交给最高苏维埃。'));}
+  if(W.chance&&Math.random()>W.chance){apply({city:-3}); log('媒体声量： '+o.nm+' ——施压失败，编辑部在写“闹事者”。');}
+  else{S.out[o.id]=st==='kr'?'neu':'vs'; log('媒体声量： '+o.nm+(st==='kr'?' 不再为克里姆林宫唱歌。':' 现在把发言权交给最高苏维埃。'));}
   save(); showMain(); openEther();}
-function outActState(o,a,key){if(S.flags.noComms&&o.id!=='radio'&&o.id!=='for')return '没有通讯'; if(S.appeals[key])return '今天已经发生过'; if(S.med<a.cost)return '需要 '+a.cost+' 舆论'; return true;}
+function outActState(o,a,key){if(S.flags.noComms&&o.id!=='radio'&&o.id!=='for')return '没有通讯'; if(S.appeals[key])return '今天已经发生过'; if(S.med<a.cost)return '需要 '+a.cost+' 媒体声量'; return true;}
 function outAct(o,a,key){if(outActState(o,a,key)!==true)return; Sfx.play(/echo|radio|ost|pch|600|for/.test(o.id)?'pips':'teletype'); S.med-=a.cost; S.appeals[key]=1; S.did.media=1; apply(fxOf(a)); if(a.run)a.run(S); log(o.nm+': '+a.t.toLowerCase()+'.'); save(); showMain(); openEther();}
 const UNIT_SH={tanks:'坦克',taman:'摩托化步兵',vv:'内卫部队',omon:'OMON',alpha:'“阿尔法”'};
 function finTxt(fx){if(!fx)return '';const o=[],pc=k=>(k<1?'−':'+')+Math.round(Math.abs(1-k)*100)+'%';
-  if(fx.air)o.push('舆论 '+sg(fx.air)); if(fx.hope)o.push('决心 '+sg(fx.hope)); if(fx.inc)o.push('+'+fx.inc+' 人'); if(fx.ppl)o.push('民众 '+sg(fx.ppl));
+  if(fx.air)o.push('媒体声量 '+sg(fx.air)); if(fx.hope)o.push('决心 '+sg(fx.hope)); if(fx.inc)o.push('+'+fx.inc+' 人'); if(fx.ppl)o.push('民众 '+sg(fx.ppl));
   if(fx.mil)o.push('战士 '+sg(fx.mil)); if(fx.ctl)o.push('入口 '+sg(fx.ctl)); if(fx.all)o.push('压力 '+pc(fx.all));
   if(fx.u)for(const k in fx.u)if(fx.u[k]!==1)o.push(UNIT_SH[k]+' '+pc(fx.u[k])); return o.join(', ');}
 function openEther(){
@@ -412,27 +412,27 @@ function openEther(){
       <td class="${st==='vs'?'':'dim'}">${x.act?x.act.t+(fresh?' <i>●</i>':''):''}</td>
       <td class="${st==='vs'?'':'dim'}">${st==='vs'?fv:pl(fv)}</td><td class="${st==='kr'?'':'dim'}">${st==='kr'?fk:pl(fk)}</td></tr>`;}).join('');
   const st=outSt(S,o); let det=`<div class="odet"><div class="ph">报刊 · ${st==='vs'?'你们的：委派（每天一次）':st==='off'?'不起作用':'如何拉拢（每天一次'+(S.appeals.pull?'，已经做过':'')+')'}</div><div class="oh"><b>${o.nm}</b> <span>覆盖 ${o.r} · ${SN[st]}。${o.about||''}</span></div><div class="obtn">`;
-  if(st==='vs'){det+=[['o'+o.id,o.act],['p'+o.id,o.act2]].filter(x=>x[1]).map(([key,a])=>{const s2=outActState(o,a,key);return `<div class="law oact${s2!==true?' lock':''}" data-k="${key}"><div class="t">${a.t} <span class="cst">播出时间 −${a.cost}</span></div><div class="e">${s2===true?[fxText(fxOf(a)),a.e].filter(Boolean).join(' · '):`<span class="n">${s2}</span>`}</div></div>`;}).join('');}
+  if(st==='vs'){det+=[['o'+o.id,o.act],['p'+o.id,o.act2]].filter(x=>x[1]).map(([key,a])=>{const s2=outActState(o,a,key);return `<div class="law oact${s2!==true?' lock':''}" data-k="${key}"><div class="t">${a.t} <span class="cst">媒体声量 −${a.cost}</span></div><div class="e">${s2===true?[fxText(fxOf(a)),a.e].filter(Boolean).join(' · '):`<span class="n">${s2}</span>`}</div></div>`;}).join('');}
   else if(st==='off')det+=`<div class="oa n">现在不起作用。</div>`;
   else if(outLocked(S,o))det+=`<div class="oa n">无法拉拢。</div>`;
   else det+=(o.ways||'').split('').map(k=>{const W=OUT_WAYS[k], s2=outWayState(o,k), c=fxText(W.cost(o))||(k==='z'?'决议':'');return `<div class="law oway${s2!==true?' lock':''}" data-w="${k}"><div class="t">${W.t} <span class="cst">${c||'命令'}</span></div><div class="e">${s2===true?W.d(o)+(st==='kr'?'。将变为中立':'。将变为你们的'):`<span class="n">${s2}</span>`}</div></div>`;}).join('');
   det+='</div></div>';
   const win=$('modal-win'); win.classList.add('wide');
-  win.innerHTML=`<h2>播出时间 · 争夺莫斯科</h2>
+  win.innerHTML=`<h2>媒体声量 · 争夺莫斯科</h2>
    <div class="tug"><span class="l">支持苏维埃 ${S.city}%</span><div class="tb"><i style="width:${S.city}%"></i></div><span class="r">支持克里姆林宫 ${100-S.city}%</span></div>
    ${resStrip('med')}
    <div class="sub">你们的声音 <b style="color:var(--ok)">${inc}</b>，克里姆林宫的 <b style="color:#7fa0cf">${kv}</b>：莫斯科一夜之间 <b class="${dc<0?'n':'p'}">${dc?sg(dc):'无变化'}</b>。莫斯科的杠杆：《莫斯科共青团员报》和《莫斯科回声》（你们掌握的每一家每夜+1，现在为+${moscOut()}），下面的运动，以及早报上的辟谣。在表格中选择一家报刊。${S.flags.noComms?' <span class="n">无通讯：只有大楼的电台、外国人和获准进入的人还能工作。</span>':''}${S.kmed?' <span class="n">夜里克里姆林宫打击了电波。</span>':''}</div>
    <table class="otab"><tr><th>报刊</th><th>覆盖</th><th>归属</th><th>影响谁</th><th>归你们时会做什么</th><th>归你们时每回合</th><th>归克里姆林宫时</th></tr>${rows}</table>
-   <div class="eth3">${det}<div><div class="ph">通用运动 · 不针对某家报刊，消耗播出时间（现在 ${fmt(S.med)}）</div><div class="app2 a1">`+
+   <div class="eth3">${det}<div><div class="ph">通用运动 · 不针对某家报刊，消耗媒体声量（现在 ${fmt(S.med)}）</div><div class="app2 a1">`+
    APPEALS.filter(inPh).map(a=>{const nc=S.flags.noComms&&a.id!=='foreign', used=S.appeals[a.id]||nc, poor=S.med<a.cost;
-     return `<div class="law gen${nc?' lock':used?' done2':poor?' lock':''}" data-id="${a.id}"><div class="t">${a.t} <span class="cst">播出时间 −${a.cost}</span></div><div class="e">${nc?'<span class="n">无通讯</span>':used?'今天已经发生过':poor?'<span class="n">播出时间不足：需要 '+a.cost+'</span>':[fxText(fxOf(a)),a.e].filter(Boolean).join(' · ')}</div></div>`;}).join('')+
+     return `<div class="law gen${nc?' lock':used?' done2':poor?' lock':''}" data-id="${a.id}"><div class="t">${a.t} <span class="cst">媒体声量 −${a.cost}</span></div><div class="e">${nc?'<span class="n">无通讯</span>':used?'今天已经发生过':poor?'<span class="n">媒体声量不足：需要 '+a.cost+'</span>':[fxText(fxOf(a)),a.e].filter(Boolean).join(' · ')}</div></div>`;}).join('')+
    `</div></div></div><div class="close xtop">✕ 关闭</div>`;
   $('modal').classList.add('on');
   win.querySelectorAll('tr[data-o]').forEach(e=>e.onclick=()=>{etherSel=e.dataset.o;openEther();});
   win.querySelectorAll('.oway').forEach(e=>e.onclick=()=>outWin(o,e.dataset.w));
   win.querySelectorAll('.oact').forEach(e=>e.onclick=()=>{const key=e.dataset.k;outAct(o,key[0]==='o'?o.act:o.act2,key);});
   win.querySelectorAll('.law.gen').forEach(e=>e.onclick=()=>{const a=APPEALS.find(x=>x.id===e.dataset.id);
-    if(S.appeals[a.id]||S.med<a.cost||(S.flags.noComms&&a.id!=='foreign'))return; S.med-=a.cost; S.appeals[a.id]=1; S.did.media=1; apply(fxOf(a)); if(a.run)a.run(S); if(a.id==='deny')S.kmed=0; log('播出时间： '+a.t.toLowerCase()+'.'); save(); showMain(); openEther();});
+    if(S.appeals[a.id]||S.med<a.cost||(S.flags.noComms&&a.id!=='foreign'))return; S.med-=a.cost; S.appeals[a.id]=1; S.did.media=1; apply(fxOf(a)); if(a.run)a.run(S); if(a.id==='deny')S.kmed=0; log('媒体声量： '+a.t.toLowerCase()+'.'); save(); showMain(); openEther();});
   win.querySelector('.close').onclick=closeModal;
 }
 function siegeState(i){const a=SIEGE[i]; if(a.once&&S.flags[a.once])return '已经完成'; const r=a.req(S); if(r!==true)return r; if(!S.orders)return '直到早晨都没有命令'; return true;}
@@ -443,7 +443,7 @@ function openSiege(){ syncRing();
   const grp=(t,l)=>l.length?`<div class="ph">${t}</div><div class="sg2">${l.map(card).join('')}</div>`:'';
   const ringL=L.filter(x=>x.a.ring&&x.a.ring<100), sum=ringL.filter(can).reduce((a,x)=>a+x.a.ring,0), oth=L.filter(x=>!x.a.ring||x.a.ring>=100).filter(x=>S.cordon||!/кольца нет/.test(x.st));
   win.innerHTML=`<h2>封锁${S.cordon?' · 封锁圈 '+S.ring+' 满值 100':''}</h2>${resStrip('ord')}${S.cordon?`<div class="tug"><span class="l">已解除 ${100-S.ring}</span><div class="tb"><i style="width:${100-S.ring}%"></i></div><span class="r">剩余 ${S.ring}</span></div>`:''}
-   <div class="sub">${S.cordon?(RP=>'今晚的封锁圈：<span class="n">合法性 '+RP.leg+(RP.hope?'，决心 '+RP.hope:'')+(RP.med?'，播出时间 '+RP.med:'')+(RP.sup?'，补给 −'+String(RP.sup).replace('.',',')+' 天':'')+(RP.dep?'，另有 '+RP.dep+' 名议员离开':'')+'</span>，人不来，过不了铁丝网。 '+(S.ring>=50?'低于50时压力减弱。 ':'封锁圈已减弱：压力减小。 ')+'每晚收紧2。<b style="color:var(--paper);font-weight:400">还需解除 '+S.ring+'；现在开放的通道带来 −'+sum+'.</b>'+(S.flags.gap>0?' <span class="p">有缺口：还有 '+S.flags.gap+' 夜。</span>':''))(ringPress(S)):'没有封锁圈。这里正在恢复通讯和照明。'}
+   <div class="sub">${S.cordon?(RP=>'今晚的封锁圈：<span class="n">合法性 '+RP.leg+(RP.hope?'，决心 '+RP.hope:'')+(RP.med?'，媒体声量 '+RP.med:'')+(RP.sup?'，补给 −'+String(RP.sup).replace('.',',')+' 天':'')+(RP.dep?'，另有 '+RP.dep+' 名议员离开':'')+'</span>，人不来，过不了铁丝网。 '+(S.ring>=50?'低于50时压力减弱。 ':'封锁圈已减弱：压力减小。 ')+'每晚收紧2。<b style="color:var(--paper);font-weight:400">还需解除 '+S.ring+'；现在开放的通道带来 −'+sum+'.</b>'+(S.flags.gap>0?' <span class="p">有缺口：还有 '+S.flags.gap+' 夜。</span>':''))(ringPress(S)):'没有封锁圈。这里正在恢复通讯和照明。'}
    ${S.flags.noComms?' <span class="n">无通讯。</span>':''}${S.flags.noPower?' <span class="n">市政府切断了电和水。</span>':''}</div>`+
    (S.cordon?`<div class="ph">忍耐并付出 · 每晚，不消耗命令，可以取消</div><div class="sg3">`+HOLDS.map(H=>{const on=(S.hold||{})[H.id],c=H.can(S);return `<div class="law hold${on?' on2':c!==true?' lock':''}" data-h="${H.id}"><div class="t">${H.t} <span class="cst">每晚 ${fxText(H.cost)}</span></div><div class="e">${on?'<span class="p">✓ 已开启。</span> '+H.d+'。点击取消':c!==true?`<span class="n">${c}</span>`:H.d}</div></div>`;}).join('')+'</div>':'')+
    (S.cordon?grp('分段解除封锁圈 · 现在开放 · 每项行动消耗一道命令',ringL.filter(can))+grp('分段解除封锁圈 · 目前关闭（显示缺少什么）',ringL.filter(x=>!can(x))):'')+
@@ -462,7 +462,7 @@ function firstLook(kind,id){S.seen=S.seen||{}; const key=kind+id; if(S.seen[key]
   $('modal-win').classList.remove('wide');
   $('modal-win').innerHTML=`<h2>${kind==='p'?P.full:P.nm.replace(/"/g,'«').replace(/«([^«]*)«/,'«$1»').toUpperCase()}</h2><div style="display:flex;gap:14px;align-items:flex-start;margin-top:10px">${W?faceHTML(who,'big'):''}<div class="sub" style="margin:0;font-size:18px;line-height:21px">${W?`<b style="color:var(--paper);font-weight:400">${W.nm}</b>, ${W.role}<br><br>`:''}${txt}</div></div><div class="law" id="fl-ok" style="margin-top:16px;text-align:center"><div class="t">好</div></div>`;
   $('modal').classList.add('on'); drawFaces($('modal-win')); $('fl-ok').onclick=closeModal;}
-function resStrip(hl){const it=[['leg','合法性',S.leg],['dep','议员',deputies(S)],['ppl','民众',fmt(S.ppl)],['mil','民兵',fmt(S.mil)],['gun','空闲武器',fmt(freeGuns(S))],['med','舆论',fmt(S.med)+' <i>+'+mediaGain()+' 每回合</i>'],['sup','补给',Math.floor(S.sup)+' 天'],['hope','决心',S.hope+'%'],['rad','激进度',S.rad+'%'],['city','莫斯科',S.city+'%'],['ord','命令',S.orders],['law','决议',S.lawCharges]];
+function resStrip(hl){const it=[['leg','合法性',S.leg],['dep','议员',deputies(S)],['ppl','民众',fmt(S.ppl)],['mil','民兵',fmt(S.mil)],['gun','空闲武器',fmt(freeGuns(S))],['med','媒体声量',fmt(S.med)+' <i>+'+mediaGain()+' 每回合</i>'],['sup','补给',Math.floor(S.sup)+' 天'],['hope','决心',S.hope+'%'],['rad','激进度',S.rad+'%'],['city','莫斯科',S.city+'%'],['ord','命令',S.orders],['law','决议',S.lawCharges]];
   return '<div class="rstrip">'+it.map(([k,n,v])=>`<span class="${k===hl?'hl':''}">${n} <b>${v}</b></span>`).join('')+'</div>';}
 function openStrike(){const T=S.strike&&STRIKES.find(x=>x.id===S.strike.id); if(!T)return; const ok=T.cover(S);
   $('modal-win').innerHTML=`<h2>叶利钦的主要打击 · ${T.nm.toUpperCase()}</h2><div class="sub">${T.warn}<br><br>今晚的打击会落在一个地方，而且很沉重：${fxText(T.hit(S))||T.e}${T.e&&fxText(T.hit(S))?' · <span class="n">'+T.e+'</span>':''}。<br><br>掩护手段：<b style="color:var(--paper)">${T.guard}</b>。${ok?'<span class="p">今天已经掩护。</span>':'<span class="n">尚未掩护。</span>'}${S.flags.shield?'<br>黑材料已经启用：如果打击落下，力度会减半。':'<br>“政府黑材料”运动会使打击减半。'}</div><div class="close">ESC — 关闭</div>`;
@@ -475,13 +475,13 @@ function openHelp(){
    ['民众','人手：示威、运输队、街垒、灭火。危机中少于 '+PERIM+' ——外墙无人守卫，决心夜间−2。达到2500时，克里姆林宫会在强攻上犹豫，但人群会吃掉补给并助长激进度。'],
    ['民兵','持枪的人：强攻时守住入口，200人起可提升决心，并开启武力选项。'],
    ['武器','武器。持械的人成为民兵战士，武器随身携带：库存不减少，减少的只是空闲武器。'],
-   ['舆论','唯一的媒体货币。每晚由站在你们一边的报刊带来。用于编辑部、运动和回应报纸；可以转化为合法性、莫斯科和派别的忠诚。'],
+   ['媒体声量','唯一的媒体资源。每晚由站在你们一边的报刊带来。用于编辑部、运动和回应报纸；可以转化为合法性、莫斯科和派别的忠诚。'],
    ['补给','食品和柴油的天数。归零：人会离开，决心下降。'],
    ['莫斯科','城市的情绪：人员流入、合法性、强攻的速度。由电波决定。'],
    ['决心','大楼的团结：低于45%时议员离开得更快。归零：结束。'],
    ['激进度','赌注：开启武力选项，关闭谈判；60%起，克里姆林宫打击更重。'],
    ['地图上的力量','苏维埃和克里姆林宫之间的绳索。65%起，力量每晚为你们工作，降到35%就为克里姆林宫工作。克里姆林宫每晚都在把所有人往自己这边拉，每两三天叶利钦会认真打击其中一个：早报会提前警告。'],
-   ['봉쇄선','大楼的封锁线，0–100。只要它还在，每晚都会打击合法性、决心、舆论、补给，并把议员拉走；低于50时压力减弱。可以忍受并付出代价（信使、双份口粮、搬运工），也可以分段解除：地图上的“封锁”窗口。']];
+   ['封锁线','大楼的封锁线，0–100。只要它还在，每晚都会打击合法性、决心、媒体声量、补给，并把议员拉走；低于50时压力减弱。可以忍受并付出代价（信使、双份口粮、搬运工），也可以分段解除：地图上的“封锁”窗口。']];
   $('modal-win').innerHTML='<h2>指标：什么影响什么</h2>'+H.map(h=>`<div class="hlp"><b>${h[0]}</b><span>${h[1]}</span></div>`).join('')+'<div class="close">ESC — 关闭</div>';
   $('modal').classList.add('on'); $('modal-win').querySelector('.close').onclick=closeModal;
 }
@@ -651,10 +651,10 @@ function paperPhoto(pic){const c=$('np-ph'),g=c.getContext('2d'),W=220,H=110;g.f
 function paperReplies(lead){const R=[];
   if(lead.c==='烙印')R.push({t:'把RNE清出大楼',fx:{city:4,leg:2,hope:-4,rad:-5},run:()=>{S.fac.rne.n=0;S.flags.rneOut=1;S.flags.brand=Math.max(0,(S.flags.brand||0)-1);}});
   else if(lead.c==='叶利钦')R.push({t:'主席团的回应决议',fx:{leg:2,hope:1,pr:2}});
-  else if(lead.g)R.push({t:'把这一期发往各地区和部队',fx:{med:-4,leg:1,pts:{gs:1}},req:()=>S.med>=4||'需要4点舆论'});
+  else if(lead.g)R.push({t:'把这一期发往各地区和部队',fx:{med:-4,leg:1,pts:{gs:1}},req:()=>S.med>=4||'需要4点媒体声量'});
   else R.push({t:'最高苏维埃主席团声明',fx:{leg:1,hope:1,rad:1}});
-  if(S.kremlin&&S.kremlin.moves.some(m=>m.kc))R.push({t:'在克里姆林宫掀起丑闻',fx:{med:-5,city:2,pr:-3},e2:'叶利钦的下一次主要打击，半数力量',run:()=>{S.flags.shield=1;},req:()=>S.med>=5||'需要5点播出时间'});
-  else if(!lead.g)R.push({t:'在电视上反驳',fx:{med:-6,city:3},req:()=>S.flags.noComms?'无通讯':S.med>=6||'需要6点播出时间'});
+  if(S.kremlin&&S.kremlin.moves.some(m=>m.kc))R.push({t:'在克里姆林宫掀起丑闻',fx:{med:-5,city:2,pr:-3},e2:'叶利钦的下一次主要打击，半数力量',run:()=>{S.flags.shield=1;},req:()=>S.med>=5||'需要5点媒体声量'});
+  else if(!lead.g)R.push({t:'在电视上反驳',fx:{med:-6,city:3},req:()=>S.flags.noComms?'无通讯':S.med>=6||'需要6点媒体声量'});
   R.push({t:'保持沉默',fx:{},e:'这一天将在没有回应的情况下开始'}); return R;}
 function showPaper(){const k=S.kremlin; if(!k){S.paper=0;return startDay();}
   show('paper'); Sfx.play('paper'); Sfx.play('teletype',.25);
@@ -679,10 +679,10 @@ function showPaper(){const k=S.kremlin; if(!k){S.paper=0;return startDay();}
   const now={...snap(),hope:S.hope,rad:S.rad,city:S.city,pr:S.pr}, o=k.d0||now;
   const row=(nm,key,suf,inv)=>{const v=Math.round(now[key]*10)/10, dl=Math.round((now[key]-o[key])*10)/10; return `<div class="row"><span>${nm}</span><span><b>${fmt(v)}${suf||''}</b> ${dl?`<span class="${(dl>0)!==!!inv?'p':'n'}">${dl>0?'+':'−'}${fmt(Math.abs(dl))}</span>`:''}</span></div>`;};
   $('np-side').innerHTML=`<div class="day">早报 · 第 ${S.day} 天</div><div class="big">晨报</div>
-    <div class="npw">今天头版由 <b class="${ours?'v':''}">${ours?'支持苏维埃':'支持克里姆林宫'}</b> 的媒体撰写。${ours?'你们的报纸多于对方，头条就是你们的。':'在“播出时间”里把编辑部拉过来，标题就是你们的。'}</div>
+    <div class="npw">今天头版由 <b class="${ours?'v':''}">${ours?'支持苏维埃':'支持克里姆林宫'}</b> 的媒体撰写。${ours?'你们的报纸多于对方，头条就是你们的。':'在“媒体”界面里把编辑部拉过来，标题就是你们的。'}</div>
     <div class="press"><i class="k" style="width:${kr/tot*100}%"></i><i class="n" style="width:${nu/tot*100}%"></i><i class="v" style="width:${vs/tot*100}%"></i></div>
     <div class="pl"><span>支持克里姆林宫 ${kr}</span><span>沉默 ${nu}</span><span>支持苏维埃 ${vs}</span></div>
-    <div class="box"><div class="bt">夜间结果</div>${row('合法性','leg')}${row('议员','dep')}${row('民众','ppl')}${row('舆论','med')}${row('补给','sup',' 天')}${row('决心','hope','%')}${row('激进度','rad','%',1)}${row('莫斯科支持苏维埃','city','%')}</div>
+    <div class="box"><div class="bt">夜间结果</div>${row('合法性','leg')}${row('议员','dep')}${row('民众','ppl')}${row('媒体声量','med')}${row('补给','sup',' 天')}${row('决心','hope','%')}${row('激进度','rad','%',1)}${row('莫斯科支持苏维埃','city','%')}</div>
     <div class="bt" style="margin-top:10px;margin-bottom:0">对头版的回应</div>`+
     k.rep.map((r,i)=>{const st=r.req?r.req():true;return `<div class="ch${st!==true?' lock':''}" data-i="${i}"><span class="k">${i+1}</span><span>${r.t}</span><span class="e">${st!==true?`<span class="n">${st}</span>`:[fxText(r.fx),r.e2].filter(Boolean).join(' · ')||r.e||''}</span></div>`;}).join('')+
     `<div class="go" id="np-go"><span class="a">开始第 ${S.day} 天</span><span class="b">ENTER</span></div>`;
@@ -1006,7 +1006,7 @@ function checkLose(){
 }
 // три яруса исходов: победа, нейтральный (здание потеряно, но Ельцин политически надломлен), поражение
 const endTier=id=>{const E=ENDINGS[id]||{};return E.win?'win':E.tier||'lose';};
-function drawScore(){const A=S.A||{units:[],air:0}; return [[S.leg>=50,'合法性不低于50（现在 '+S.leg+')'],[(A.air||0)>=50,'舆论不低于50（现在 '+Math.round(A.air||0)+')'],[A.units.some(u=>u.id!=='alpha'&&(u.st==='refuse'||u.st==='stopped')),'至少一支部队拒绝执行或已被制止'],[S.city>=55,'莫斯科不低于55%（现在 '+S.city+'%)']];}
+function drawScore(){const A=S.A||{units:[],air:0}; return [[S.leg>=50,'合法性不低于50（现在 '+S.leg+')'],[(A.air||0)>=50,'媒体声量不低于50（现在 '+Math.round(A.air||0)+')'],[A.units.some(u=>u.id!=='alpha'&&(u.st==='refuse'||u.st==='stopped')),'至少一支部队拒绝执行或已被制止'],[S.city>=55,'莫斯科不低于55%（现在 '+S.city+'%)']];}
 function ending(id,exact){
   if(exact);
   else if((id==='fell'||id==='broken')&&drawScore().filter(x=>x[0]).length>=3)id='pyrrhic';
@@ -1031,7 +1031,7 @@ const EPI_FAC={
        '巴布林出任新宪法委员会主席。在被围困的大楼里起草决议的“俄罗斯”派律师，如今正在起草根本大法，在其中议会强于总统。',
        '“俄罗斯”留在了获胜的代表大会里，但人们记得它的票数曾经需要反复劝说。巴布林被纳入宪法委员会，任副职而非主席。',
        '巴布林是最后离开大楼的人之一，在体育场附近被殴打。12月，鄂木斯克的选民再次选他为议员，他在杜马讲台上重复着他在白宫里说过的话。',
-       '마지막 며칠 동안 계파는 이미 각자 탈출구를 찾고 있었다. 어쨌든 바부린은 건물을 나서다 폭행당했고, 12월 옴스크는 그를 의회로 돌려보냈지만 이번에는 계파 없이였다.'],
+       '最后几天，派系已经在各自寻找退路。巴布林走出大楼时遭到殴打；12月，鄂木斯克再次把他送进议会，但这一次没有派系。'],
   kr: ['“俄罗斯共产党人”在结局之前离开了。雷布金比其他人更早与政府达成协议，为选举保住了政党。',
        '共产党人在民族和解政府中获得了三个部级职位。曾把人们带到白宫的党组织，在一个秋天里就成为全国组织最严密的力量。',
        '共产党人留在了代表大会，但没有得到部长职位：他们太久都在观望谁会获胜。雷布金转而做他最擅长的事，成为各方之间的中间人。',
@@ -1047,11 +1047,11 @@ const EPI_FAC={
        '“祖国”一直坚持到了胜利，但它给各地打的电话比指挥部要求的更为谨慎。在部里，派系的将军们得到的是没有部队的办公室。',
        '“祖国”的将军们以退役告终，不得再穿军装。一年后，塔拉索夫重返政坛，但已没有肩章，也没有派系。',
        '“祖国”在结束前几天停止了给各地打电话。将军们仍然被解职：克里姆林宫记住的不是事情如何结束，而是它如何开始。'],
-  sm: ['“更替”派抢先走到镜头前，提议在没有叶利钦和哈斯布拉托夫的情况下举行选举。这些画面在所有频道上播出了一个晚上。',
-       '“更替”派成了一场不必为之羞愧的胜利的面孔：年轻议员们谈判选举事宜，并向西方解释，在莫斯科获胜的是议会，而不是街垒。',
-       '“更替”派留了下来，直到最后都为双方保持着门路。在选举谈判中，戈洛温被请去担任顾问，而不是代表团团长。',
+  sm: ['“变革”派抢先走到镜头前，提议在没有叶利钦和哈斯布拉托夫的情况下举行选举。这些画面在所有频道上播出了一个晚上。',
+       '“变革”派成了一场不必为之羞愧的胜利的面孔：年轻议员们谈判选举事宜，并向西方解释，在莫斯科获胜的是议会，而不是街垒。',
+       '“变革”派留了下来，直到最后都为双方保持着门路。在选举谈判中，戈洛温被请去担任顾问，而不是代表团团长。',
        '派系在同一周解体。议员们分散加入了新的政党，而戈洛温又花了好几年解释，他既反对总统令，也反对开枪。',
-       '“更替”派在结束之前举着白旗走出了大楼。克里姆林宫表示感谢，选民却不肯原谅：12月，派系中几乎无人当选。'],
+       '“变革”派在结束之前举着白旗走出了大楼。克里姆林宫表示感谢，选民却不肯原谅：12月，派系中几乎无人当选。'],
   kol:['“动摇派”成员一个接一个地离开。总统令承诺给每人一个职位和一年的薪俸，几乎所有人都拿到了。',
        '“动摇派”留了下来，事后他们说自己一分钟也没有怀疑过。阿卜杜拉季波夫领导与各地区的协调委员会，在那里如鱼得水。',
        '“动摇派”坐到胜利，眼睛始终盯着门口。他们没有被原谅：在新的代表大会上，再也没有人提前估算他们的票数。',
@@ -1095,8 +1095,8 @@ const EPI_FAC_N={
        '农业派与双方讨价还价，却没有欠任何一方的人情。一个月后，拉普申重新组织起农业党，带领它走向选举。'],
   otc:['“祖国”派的将军们直到最后一夜都在给各地打电话。他们没有被召回军队，但也不敢让他们蒙羞离职：太多指挥官记得那些电话。',
        '“祖国”派给各地打电话比指挥部要求的更为谨慎。派系的将军们悄然退役。一年后，塔拉索夫重返政坛，已没有肩章。'],
-  sm: ['“更替”派替所有不愿彼此对话的人进行谈判。危机以无人获胜告终时，人们发现这正是它所追求的。戈洛温被邀请加入每一个调解委员会。',
-       '“更替”派为双方保持着门路，并走进了打开的那一扇。议员们散入新的政党，戈洛温则长期解释，他同时反对双方。'],
+  sm: ['“变革”派替所有不愿彼此对话的人进行谈判。危机以无人获胜告终时，人们发现这正是它所追求的。戈洛温被邀请加入每一个调解委员会。',
+       '“变革”派为双方保持着门路，并走进了打开的那一扇。议员们散入新的政党，戈洛温则长期解释，他同时反对双方。'],
   kol:['“动摇派”坚持到了最后，他们自己也感到惊讶。阿卜杜拉季波夫领导与各地区的调解委员会：当无人获胜时，调解人比英雄更有用。',
        '“动摇派”等待结局，却没有得到明确的答复。克里姆林宫承诺的职位并非人人都拿到了。阿卜杜拉季波夫还是进入了新议会的上院。'],
 };
@@ -1171,8 +1171,8 @@ function epilogue(){
   { const A=S.A, kWon=endTier(id)==='lose';
     if(!A||!A.units||false){ add('grachev','克里姆林宫部队','没有发生强攻',id==='elect_deal'?'被调往莫斯科的部队在环路上停留了一周，然后返回驻地。士兵们被告知，那只是一次演习。':'没有走到开枪那一步。纵队在河堤上停了一会儿就离开了：已经没有人可以抓了。'); }
     else{ const T={
-      tanks:{who:'grachev',nm:'坦克上桥',sub:'坎捷米尔师',
-        refuse:'坎捷米尔师的车组没有开上桥。团长要求部长下达书面命令，一直等到晚上。后来，拒绝开火的军官被悄悄解职，但没有人敢将他们送上法庭。',
+      tanks:{who:'grachev',nm:'坦克上桥',sub:'坎捷米罗夫卡师',
+        refuse:'坎捷米罗夫卡师的车组没有开上桥。团长要求部长下达书面命令，一直等到晚上。后来，拒绝开火的军官被悄悄解职，但没有人敢将他们送上法庭。',
         out:'坦克开上了桥，但在强攻结束之前就停止了开火。车组关掉引擎，当着摄像机坐在装甲上。白宫旁边那张沉默的坦克照片传遍了世界各地的报纸。',
         won:'坦克一直向上层开火，直到最后。据传，车组成员获得了现金报酬和住房。多年来，部里都没有公布坐在车里的军官的名字。',
         lost:'坦克一直开火到天黑，但大楼守住了。新政权没有审判向议会开火的军官，只是不再与他们握手。许多人当年就辞职了。'},
@@ -1347,7 +1347,7 @@ function cheatGo(k,auto){ if(!S)return; S.cheat=1;
   cheatSync();
 }
 function openCheats(){ if(!S)return; S.cheat=1; const win=$('modal-win'); win.classList.add('wide');
-  const R=[['leg','合法性',20],['hope','决心',20],['rad','激进度',20],['city','莫斯科',20],['med','舆论',20],['ppl','民众',1000],['mil','民兵',200],['gun','武器',200],['sup','补给',3],['omon','OMON特警战备',30]];
+  const R=[['leg','合法性',20],['hope','决心',20],['rad','激进度',20],['city','莫斯科',20],['med','媒体声量',20],['ppl','民众',1000],['mil','民兵',200],['gun','武器',200],['sup','补给',3],['omon','OMON特警战备',30]];
   const b=(k,t,c)=>`<div class="law ck${c?' '+c:''}" data-k="${k}"><div class="t">${t}</div></div>`;
   win.innerHTML=`<h2>作弊 · 测试用</h2>${resStrip('')}
    <div class="sub">按键0打开和关闭此面板。在手机上：在标题页连续快速点按五次版本号，即可开启“作弊”按钮。</div>

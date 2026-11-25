@@ -1,10 +1,10 @@
 // ===== достижения и статистика. Всё хранится в браузере; проценты игроков берутся из открытого счётчика, только когда игра открыта по сети =====
 const ACH_KEY='1993-ach', STATS_KEY='1993-stats', ACH_KASHIN="data:image/png;base64,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";
 const ACH=[
- {id:'ost',    nm:'莫斯科发声',     d:'夺取奥斯坦金诺'},
+ {id:'ost',    nm:'莫斯科广播',     d:'夺取奥斯坦金诺'},
  {id:'mer',    nm:'经互会大楼',         d:'把市政府拉到苏维埃一边：70%及以上'},
  {id:'city',   nm:'莫斯科站在我们一边',      d:'把莫斯科的支持率提到75%'},
- {id:'zero',   nm:'零方案',    d:'不经强攻，实现同期重选'},
+ {id:'zero',   nm:'零方案',    d:'不经强攻，实现同时选举'},
  {id:'ring',   nm:'突破',             d:'解除白宫周围的封锁圈'},
  {id:'dep',    nm:'代表大会齐聚',      d:'让220名议员在大楼内迎接强攻'},
  {id:'bar',    nm:'五排',         d:'构筑五排深的街垒'},
@@ -12,7 +12,7 @@ const ACH=[
  {id:'zhupel', nm:'自由派的稻草人',  d:'在大楼里有RNE、并背着“法西斯”标签的情况下，不能输'},
  {id:'fluger', nm:'风向标',             d:'放RNE进大楼，然后把他们赶出去，并且不能输'},
  {id:'refuse', nm:'拒绝',              d:'确保在强攻开始前，克里姆林宫至少有一支部队拒绝执行命令'},
- {id:'tanks',  nm:'祖国的烟对我们是甜的', d:'阻止桥上的坦克'},
+ {id:'tanks',  nm:'祖国的炊烟格外香甜', d:'阻止桥上的坦克'},
  {id:'alpha',  nm:'致敬完毕',       d:'通过无线电劝说“阿尔法”撤走'},
  {id:'parley', nm:'谈判代表',       d:'说服克里姆林宫的一支部队退出强攻：叶利钦来电后挥白旗'},
  {id:'meat',   nm:'绞肉机',          d:'让强攻部队伤亡400人'},

@@ -186,7 +186,7 @@ function renderWH(){
   const tot=deputies(S);
   $('w-status').innerHTML=S.phase===1?`供电、供水、通讯：有<br>大楼内议员：${tot}${S.away?' · 外出： '+S.away:''}`
     :`供电：${S.flags.noPower?'<b>无</b>（每晚决心 −2）':S.flags.gen?'<i>发电机</i>':'有'} · 通讯：${S.flags.noComms?'<b>无</b>':S.flags.radio?'<i>无线电</i>':'有'}<br>大楼内议员：${tot}${S.away?' · 外出： '+S.away:''}`;
-  {const y=whYield(S); $('w-status').innerHTML+=`<br>最高苏维埃运转 ${Math.round(y.q*100)}% · 每晚：合法性 +${y.leg}，舆论 +${y.med}，决心 +${y.hope}`;}
+  {const y=whYield(S); $('w-status').innerHTML+=`<br>最高苏维埃运转 ${Math.round(y.q*100)}% · 每晚：合法性 +${y.leg}，媒体声量 +${y.med}，决心 +${y.hope}`;}
   $('w-sec').querySelectorAll('.room,.fl2').forEach(e=>e.remove());
   // meters
   seg('w-hope',S.hope);seg('w-rad',S.rad);$('w-mh').textContent=S.hope+'%';$('w-mr').textContent=S.rad+'%';
@@ -260,10 +260,10 @@ function musterRoll(A){const L=[], add=(g,t)=>L.push({g,t}), lv=id=>S.fac[id].n>
   l=lv('agr'); if(l>=3){A.stock+=4;A.medK=.8;add(1,'农业派设立了厨房和战地医院：补给 +4，伤亡减少20%');} else if(l>=0&&l<=1){S.fac.agr.n=0;add(0,'农业派回到了各自的州');}
   l=lv('otc'); if(l>=3){A.gsB=.2;mul('taman',.9);add(1,'“祖国”掌握各部队的频率和指挥官姓名：给总参谋部的电话更可靠，摩托化步兵 −10%');}
     else if(l>=0&&l<=1){A.leak=1;S.fac.otc.n=0;add(0,'“祖国”的议员离开，并向总参谋部说明了谁负责什么：强攻 +12%，塔楼的掩护效果减半');}
-  l=lv('sm'); if(l>=3){A.air=Math.min(100,A.air+15);add(1,'“更替”带外国记者参观各层：舆论 +15');} else if(l>=0&&l<=1){A.air=Math.max(0,A.air-15);hp(-4);S.fac.sm.n=0;add(0,'“更替”举着白旗走向镜头：舆论 −15，决心 −4');}
+  l=lv('sm'); if(l>=3){A.air=Math.min(100,A.air+15);add(1,'“变革”带外国记者参观各层：媒体声量 +15');} else if(l>=0&&l<=1){A.air=Math.max(0,A.air-15);hp(-4);S.fac.sm.n=0;add(0,'“变革”举着白旗走向镜头：媒体声量 −15，决心 −4');}
   l=lv('kol'); if(l>=3){hp(3);add(1,'“动摇派”留了下来。大厅的法定人数：决心 +3');} else if(l>=0&&l<=1){A.ctl.entr-=10;A.ctl.front-=10;S.fac.kol.n=0;add(0,'“动摇派”穿过封锁线离开，并指明了哨位所在：两个入口 −10');}
   l=lv('rne'); if(l>=3){A.ctl.entr=Math.min(100,A.ctl.entr+10);add(1,'RNE守住第二十号入口：薄弱入口 +10');} else if(l>=0&&l<=1){const g=Math.min(100,freeGuns(S));S.gun-=g;A.ammo=Math.max(0,A.ammo-g);S.fac.rne.n=0;S.flags.rneLeft=1;add(0,'巴尔卡绍夫的人经下水道离开，并带走了枪械：武器 −'+g);}
-  l=lv('so'); if(l>=3)add(1,'“军官联盟”接管防御指挥部：所有防区坚守得更好'); else if(l>=0&&l<=1){A.air=Math.max(0,A.air-10);S.rad=clamp(S.rad+5,0,100);add(0,'捷列霍夫的军官各自为战：舆论 −10，激进度 +5');}
+  l=lv('so'); if(l>=3)add(1,'“军官联盟”接管防御指挥部：所有防区坚守得更好'); else if(l>=0&&l<=1){A.air=Math.max(0,A.air-10);S.rad=clamp(S.rad+5,0,100);add(0,'捷列霍夫的军官各自为战：媒体声量 −10，激进度 +5');}
   // силы снаружи
   for(const [id,nm] of [['mo','国防部'],['gs','总参谋部'],['mvd','内务部']]){const v=S.pts[id],hi=id==='mvd'?50:65,lo=id==='mvd'?30:45; add(v>=lo?1:0,nm+' ('+v+'% 支持你们，拒绝 '+hi+'): '+(v>=hi?'部队拒绝执行命令':v>=lo?'部队犹豫，以半数兵力推进':'部队正在执行命令'));}
   {const o=S.omon==null?100:S.omon; add(o<=60?1:0,'特警： '+(o<=60?'犹豫，以半数兵力推进':'正在执行命令')+' （备战度 '+o+'%)');}
@@ -275,10 +275,10 @@ function musterRoll(A){const L=[], add=(g,t)=>L.push({g,t}), lv=id=>S.fac[id].n>
     if(x.air)A.air=clamp(A.air+x.air,0,100); if(x.hope)hp(x.hope); if(x.inc)A.incoming+=x.inc; if(x.ppl)S.ppl=Math.max(0,S.ppl+x.ppl); if(x.mil){S.mil+=x.mil;S.gun+=x.mil;}
     if(x.ctl){A.ctl.entr+=x.ctl;A.ctl.front+=x.ctl;} if(x.all)for(const u of A.units)u.cur*=x.all; if(x.u)for(const k in x.u)mul(k,x.u[k]);
     add(st==='vs'?1:0,f.t);}
-  if((S.flags.brand||0)>=2){A.air=Math.max(0,A.air-12);add(0,'“议会里有法西斯分子”的污名：西方别过脸去。舆论 −12');}
+  if((S.flags.brand||0)>=2){A.air=Math.max(0,A.air-12);add(0,'“议会里有法西斯分子”的污名：西方别过脸去。媒体声量 −12');}
   // что вы успели сделать
   if(S.flags.tunnel){A.tunnel=1;add(1,'下水道已探明：伤员从地下运出，每小时数量翻倍');}
-  if(S.flags.noComms)add(0,'通讯中断：无人可以打电话，舆论成本翻倍');
+  if(S.flags.noComms)add(0,'通讯中断：无人可以打电话，媒体声量成本翻倍');
   if(S.flags.noPower){hp(-3);add(0,'大楼断电：决心 −3');} else if(S.flags.gen)add(1,'发电机运转：有电和无线电');
   if(S.bar>=4)add(1,'街垒在 '+S.bar+' 排之中：入口坚守得更久');
   if(deputies(S)<QUORUM){hp(-4);add(0,'没有法定人数：大厅中 '+deputies(S)+' 名议员。决心 −4');}
@@ -378,10 +378,10 @@ function renderAssaultSafe(){try{renderAssault();}catch(e){}}
 function finaleGo(){const A=S.A; if(!A||A.card!=='fin')return; A.card=0; $('modal').classList.remove('on'); ending(A.finId);}
 function alphaCard(){
   const A=S.A;
-  const DS=[[S.leg>=50,'合法性不低于50（现在 '+S.leg+')'],[A.air>=40,'舆论不低于40（现在 '+Math.round(A.air)+')']], draw=DS.every(x=>x[0]);
+  const DS=[[S.leg>=50,'合法性不低于50（现在 '+S.leg+')'],[A.air>=40,'媒体声量不低于40（现在 '+Math.round(A.air)+')']], draw=DS.every(x=>x[0]);
   $('modal-win').innerHTML=`<h2>出入口的“阿尔法”</h2><div class="sub">${A.allRef?'没有一支部队执行命令。克里姆林宫还剩最后的预备队：“阿尔法”和“飞马”。':'强攻已四小时，大楼仍未拿下。克里姆林宫投入最后的预备队：“阿尔法”和“飞马”。'} 他们的军官不想向议会开火，并提议以他们自己的担保带领人员撤出。结局如何，取决于全国是否在注视他们。</div>`+
     [{t:'放“阿尔法”进来，并在其担保下撤出',d:draw?'<span class="p">中立结局：</span>“阿尔法”当着摄像机拒绝强攻。你们失去大楼，但叶利钦已无法指挥。':'<span class="n">失败：</span>悄无声息地投降。要让结局变为中立，需要 '+DS.filter(x=>!x[0]).map(x=>x[1]).join(' 和 ')+'.'},
-     {t:'通过无线电向军官喊话',d:S.A.air>=10?`舆论 −10 · “阿尔法”拒绝强攻并撤离的几率为 ${Math.round((.25+S.leg/250)*100)}%。${S.A.allRef?'那时就没有人可以强攻了':'与其余部队的战斗继续'}`:'<span class="n">需要 10 舆论</span>'},
+     {t:'通过无线电向军官喊话',d:S.A.air>=10?`媒体声量 −10 · “阿尔法”拒绝强攻并撤离的几率为 ${Math.round((.25+S.leg/250)*100)}%。${S.A.allRef?'那时就没有人可以强攻了':'与其余部队的战斗继续'}`:'<span class="n">需要 10 媒体声量</span>'},
      {t:'战斗',d:'“阿尔法”将强攻第二十号入口。这是克里姆林宫最强的部队。'}]
     .map((c,i)=>`<div class="law" data-i="${i}"><div class="t">${i+1}. ${c.t}</div><div class="d">${c.d}</div></div>`).join('');
   $('modal').classList.add('on'); A.card=1;
@@ -416,24 +416,24 @@ const INCIDENTS=[
        {t:'宣读代表大会决议：命令是犯罪的，他将亲自承担责任',d:()=>'成功率 '+Math.round(gsChance(.2)*100)+'%：摩托化步兵撤离。否则合法性 −3，其士气 +10',rq:'合法性60',req:()=>S.leg>=60,run:A=>{const u=A.units.find(x=>x.id==='taman'); if(Math.random()<gsChance(.2)){u.cur=0;u.st='stopped';u.why='总参谋部撤回了';alog('摩托化步兵：科列斯尼科夫不愿为强攻承担责任。师部已撤离。');aBanner('摩托化步兵：已撤离','科列斯尼科夫不愿亲自为强攻负责。',true);}else{u.mor0=uMorV(u);uMor(u,10);u.why='通话失败';S.leg=clamp(S.leg-3,0,100);alog('科列斯尼科夫回答说，他向总统宣过誓。通话录音被交给了克里姆林宫的记者。','bad');}}}]},
   {id:'y_addr', cond:A=>A.r>=1, h:'叶利钦讲话', p:'早上九点，总统在电视上讲话：“莫斯科的武装叛乱将被镇压。那些与和平城市作对的人，将得到应有的下场。”士兵们用无线电收听。',
    ch:[{t:'不予回应',d:'所有部队士气 +8 · 决心 −3',run:A=>{for(const u of A.units)uMor(u,8);S.hope=clamp(S.hope-3,0,100);}},
-       {t:'现场回应：议员在大厅里，他们正在向他们开枪',d:'舆论 −8 · 部队士气 −6',rq:'舆论30',req:()=>S.A.air>=30&&S.A.air>=8,run:A=>{S.A.air-=8;for(const u of A.units)uMor(u,-6);}},
+       {t:'现场回应：议员在大厅里，他们正在向他们开枪',d:'媒体声量 −8 · 部队士气 −6',rq:'媒体声量30',req:()=>S.A.air>=30&&S.A.air>=8,run:A=>{S.A.air-=8;for(const u of A.units)uMor(u,-6);}},
        {t:'在各层播放他的讲话：让他们听听许诺给他们的是什么',d:'决心 +4 · 激进度 +4',run:A=>{S.hope=clamp(S.hope+4,0,100);S.rad=clamp(S.rad+4,0,100);}}]},
   // тяни-толкай: когда часть встала или заколебалась, Ельцин один раз лично звонит её командиру. Вернуть каждую часть он может только однажды
   {id:'y_call', multi:1, prio:1, cond:A=>A.r>=1&&!!yCallUnit(A), h:'来自克里姆林宫的电话', p:()=>{const u=yCallUnit(S.A),U=UNITS.find(x=>x.id===u.id);return `${U.nm}：士气 ${Math.round(uMorV(u))}%，部队动摇，以半数兵力前进。叶利钦亲自给指挥官打电话：“你明白拒绝的代价吗？前进。”他只能鼓励仍在作战的部队，而且只能一次。如果某支部队停下来，就再也没有人能把它拉回去。`;},
    ch:[{t:'不予介入',d:()=>'部队士气 +'+yCallGain(S.A),run:A=>{const u=yCallUnit(A),g=yCallGain(A);u.called=1;u.mor0=uMorV(u);uMor(u,g);u.why='叶利钦的电话';}},
-       {t:'切换到他们的频率：“指挥官，这道命令是犯罪的，你们将为此负责”',d:()=>'舆论 −10 · 部队士气仅 +'+Math.round(yCallGain(S.A)/3),rq:'舆论10',req:()=>S.A.air>=10,run:A=>{const u=yCallUnit(A),g=yCallGain(A);u.called=1;u.mor0=uMorV(u);A.air-=10;uMor(u,Math.round(g/3));u.why='通话被切断';}},
+       {t:'切换到他们的频率：“指挥官，这道命令是犯罪的，你们将为此负责”',d:()=>'媒体声量 −10 · 部队士气仅 +'+Math.round(yCallGain(S.A)/3),rq:'媒体声量10',req:()=>S.A.air>=10,run:A=>{const u=yCallUnit(A),g=yCallGain(A);u.called=1;u.mor0=uMorV(u);A.air-=10;uMor(u,Math.round(g/3));u.why='通话被切断';}},
        {t:'派议员军官举着白旗前去',d:()=>'成功率 '+Math.round(yCallTalk(S.A)*100)+'%：部队全部撤离。否则士气 +'+yCallGain(S.A)+'，决心 −3',run:A=>{const u=yCallUnit(A),U=UNITS.find(x=>x.id===u.id),g=yCallGain(A),ok=Math.random()<yCallTalk(A);u.called=1; if(ok){u.cur=0;u.st='stopped';u.why='带走了部队';alog(U.nm+'：指挥官听取了议员的意见，带走了部队。');aBanner(U.nm.toUpperCase()+'：已撤离','指挥官听取了议员的意见，将部队带离大楼。',true);}else{u.mor0=uMorV(u);uMor(u,g);u.why='叶利钦的电话';S.hope=clamp(S.hope-3,0,100);alog('谈判代表没能接近指挥官。','bad');}}}]},
   {id:'y_order', cond:A=>A.r>=4&&A.units.some(u=>u.cur>3&&u.mor<=45), h:'带签名的命令', p:'总统亲笔签名的书面命令被送到了各部队指挥官手中。现在拒绝意味着军事法庭，而不是犹豫。',
    ch:[{t:'什么也不做',d:'所有部队士气 +15',run:A=>{for(const u of A.units)if(u.cur>3)uMor(u,15);}},
-       {t:'在电视上提醒：命令是非法的，执行者将承担责任',d:'舆论 −10 · 士气 +5（而非 +15）',rq:'合法性50',req:()=>S.leg>=50&&S.A.air>=10,run:A=>{S.A.air-=10;for(const u of A.units)if(u.cur>3)uMor(u,5);}}]},
+       {t:'在电视上提醒：命令是非法的，执行者将承担责任',d:'媒体声量 −10 · 士气 +5（而非 +15）',rq:'合法性50',req:()=>S.leg>=50&&S.A.air>=10,run:A=>{S.A.air-=10;for(const u of A.units)if(u.cur>3)uMor(u,5);}}]},
   // ----- части Кремля: кто отказывается, кто переходит, кого дожимают. Зависит от отношений со структурой -----
   {id:'u_tank', cond:A=>uOn(A,'tanks'), h:'车组关掉了引擎', p:'桥上的一辆坦克沉默了。车组指挥员通过公开频道问：谁来为向议会开火负责，拒绝的人又会怎样。',
    ch:[{t:'保持沉默',d:'坦克 −10%',run:A=>uMul(A,'tanks',.9)},
        {t:'以最高苏维埃的名义作出保证：拒绝者不会受到伤害',d:'坦克 −35%',rq:'合法性60',req:()=>S.leg>=60,run:A=>uMul(A,'tanks',.65)},
-       {t:'召唤他们过来：调转炮口',d:'一辆坦克停在正门：入口 +15 · 激进度 +5 · 舆论 −10',rq:'国防部55',req:()=>S.pts.mo>=55,run:A=>{uMul(A,'tanks',.75);A.ctl.front=Math.min(100,A.ctl.front+15);S.rad=clamp(S.rad+5,0,100);A.air=Math.max(0,A.air-10);}}]},
+       {t:'召唤他们过来：调转炮口',d:'一辆坦克停在正门：入口 +15 · 激进度 +5 · 媒体声量 −10',rq:'国防部55',req:()=>S.pts.mo>=55,run:A=>{uMul(A,'tanks',.75);A.ctl.front=Math.min(100,A.ctl.front+15);S.rad=clamp(S.rad+5,0,100);A.air=Math.max(0,A.air-10);}}]},
   {id:'u_paid', pic:'tank', cond:A=>uOn(A,'tanks')&&S.pts.mo<50&&A.r>=1, h:'为钱而战的车组', p:'义务兵拒绝开火。自愿报名的军官被派上坦克：每人都被许诺金钱和住房。炮手都是有经验的。',
    ch:[{t:'什么也不做',d:'坦克 +25%',run:A=>uMul(A,'tanks',1.25)},
-       {t:'在电视上点名并公布价码',d:'舆论 +2 · 坦克 +5%',rq:'舆论 8',req:()=>S.A.air>=8,run:A=>{S.A.air-=8;uMul(A,'tanks',1.05);A.air=Math.min(100,A.air+10);}},
+       {t:'在电视上点名并公布价码',d:'媒体声量 +2 · 坦克 +5%',rq:'媒体声量 8',req:()=>S.A.air>=8,run:A=>{S.A.air-=8;uMul(A,'tanks',1.05);A.air=Math.min(100,A.air+10);}},
        {t:'致电师长：把志愿者撤下来',d:'坦克 −15%',rq:'国防部 40',req:()=>S.pts.mo>=40&&!S.flags.noComms,run:A=>uMul(A,'tanks',.85)}]},
   {id:'u_vv', cond:A=>uOn(A,'vv'), h:'团不肯出动', p:'一个内卫部队团的团长通过无线电说：他的人不会向议会开火。但他也不打算过来。他问你们想让他做什么。',
    ch:[{t:'让他把人带回营房',d:'内卫部队 −25%',run:A=>uMul(A,'vv',.75)},
@@ -446,22 +446,22 @@ const INCIDENTS=[
   {id:'u_general', cond:A=>A.r>=2&&A.units.some(u=>uState(u)==='waver'), h:'桥上的将军', p:'克里姆林宫派出一名将军，携带书面命令并以军事法庭相威胁，前往动摇的部队。他沿着队列走动，直视指挥官的眼睛。',
    ch:[{t:'等待',d:'动摇的部队全力进攻',run:A=>{for(const u of A.units)if(uState(u)==='waver'){u.st='attack';u.mor=70;}}},
        {t:'派议员出身的将军前去会面',d:'部队继续动摇，并减弱15%',rq:'总参谋部 45',req:()=>S.pts.gs>=45,run:A=>{for(const u of A.units)if(u.st==='waver')u.cur*=.85;}},
-       {t:'在直播中展示手持命令的将军',d:'舆论 −15 · 一支动摇的部队撤离，其余部队进攻',rq:'舆论 40',req:()=>S.A.air>=40,run:A=>{A.air-=15;const w=A.units.filter(u=>uState(u)==='waver').sort((a,b)=>b.cur-a.cur);if(w[0])uStop(A,w[0].id,'离开了摄像机的视野');for(const u of w.slice(1)){u.st='attack';u.cur=UNITS.find(x=>x.id===u.id).str;}}}]},
-  {id:'u_tula', cond:A=>A.r>=5&&S.pts.gs<50, h:'来自图拉的伞兵', p:'图拉师的一个团已抵达莫斯科。团长至今不明白是为了谁把他们调来的，正在环路上等候。',
+       {t:'在直播中展示手持命令的将军',d:'媒体声量 −15 · 一支动摇的部队撤离，其余部队进攻',rq:'媒体声量 40',req:()=>S.A.air>=40,run:A=>{A.air-=15;const w=A.units.filter(u=>uState(u)==='waver').sort((a,b)=>b.cur-a.cur);if(w[0])uStop(A,w[0].id,'离开了摄像机的视野');for(const u of w.slice(1)){u.st='attack';u.cur=UNITS.find(x=>x.id===u.id).str;}}}]},
+  {id:'u_tula', cond:A=>A.r>=5&&S.pts.gs<50, h:'来自图拉的空降兵', p:'图拉师的一个团已抵达莫斯科。团长至今不明白是为了谁把他们调来的，正在环路上等候。',
    ch:[{t:'什么也不做',d:'摩托化步兵 +35%',run:A=>uMul(A,'taman',1.35,1)},
-       {t:'通过无线电与他联络',d:'舆论 −10 · 45%几率该团留在环路',rq:'舆论10',req:()=>S.A.air>=10,run:A=>{S.A.air-=10;if(Math.random()<.45)alog('图拉团留在环路，没有进入城市。');else{uMul(A,'taman',1.35,1);alog('伞兵进入了城市。','bad');}}},
+       {t:'通过无线电与他联络',d:'媒体声量 −10 · 45%几率该团留在环路',rq:'媒体声量10',req:()=>S.A.air>=10,run:A=>{S.A.air-=10;if(Math.random()<.45)alog('图拉团留在环路，没有进入城市。');else{uMul(A,'taman',1.35,1);alog('空降兵进入了城市。','bad');}}},
        {t:'用人群封住大街',d:'民众 −400 · 摩托化步兵 +10%',rq:'民众1500',req:()=>S.ppl>=1500,run:A=>{S.ppl-=400;uMul(A,'taman',1.1,1);}}]},
   {id:'u_column', cond:A=>A.r>=3&&S.pts.gs>=55, h:'纵队等待命令', p:'莫斯科郊外一支部队的指挥官通过保密线路来电：他准备带领纵队开往白宫。他需要命令和签字。',
-   ch:[{t:'拒绝：军队不得向军队开火',d:'舆论 +10 · 决心 −2',run:A=>{A.air=Math.min(100,A.air+10);S.hope=clamp(S.hope-2,0,100);}},
+   ch:[{t:'拒绝：军队不得向军队开火',d:'媒体声量 +10 · 决心 −2',run:A=>{A.air=Math.min(100,A.air+10);S.hope=clamp(S.hope-2,0,100);}},
        {t:'让它停在环路上等待',d:'克里姆林宫所有部队 −12%',run:A=>{for(const u of A.units)u.cur*=.88;}},
-       {t:'签署命令：纵队进城',d:'民兵 +150 · 武器 +150 · 决心 +6 · 激进度 +10 · 舆论 −20',rq:'激进度 50%',req:()=>S.rad>=50,run:A=>{S.mil+=150;S.gun+=150;A.ammo+=150;S.hope=clamp(S.hope+6,0,100);S.rad=clamp(S.rad+10,0,100);A.air=Math.max(0,A.air-20);}}]},
+       {t:'签署命令：纵队进城',d:'民兵 +150 · 武器 +150 · 决心 +6 · 激进度 +10 · 媒体声量 −20',rq:'激进度 50%',req:()=>S.rad>=50,run:A=>{S.mil+=150;S.gun+=150;A.ammo+=150;S.hope=clamp(S.hope+6,0,100);S.rad=clamp(S.rad+10,0,100);A.air=Math.max(0,A.air-20);}}]},
   {id:'u_cops', cond:A=>S.pts.mvd>=50, h:'一个分队倒戈', p:'三十多名来自区分局的民警带着制式武器来到第二十号入口。带队的军官说：“我们向法律宣过誓。”',
    ch:[{t:'安排到窗口',d:'民兵 +40 · 武器 +40',run:A=>{S.mil+=40;S.gun+=40;}},
-       {t:'让他们穿着制服带出伤员和妇女',d:'伤员已撤出 · 舆论 +10',run:A=>{A.wnd=0;A.air=Math.min(100,A.air+10);}},
+       {t:'让他们穿着制服带出伤员和妇女',d:'伤员已撤出 · 媒体声量 +10',run:A=>{A.wnd=0;A.air=Math.min(100,A.air+10);}},
        {t:'送回去去说服自己人',d:'内卫部队和特警 −15%',run:A=>{uMul(A,'vv',.85);uMul(A,'omon',.85);}}]},
   {id:'u_back', cond:A=>false&&A.r>=3&&A.units.some(u=>(u.st==='refuse'||u.st==='stopped')&&u.id!=='alpha'), h:'逼迫拒绝者', p:'拒绝强攻的部队指挥官被撤职。新指挥官带来了钱和命令。士兵们被重新集合。',
    ch:[{t:'什么也不做',d:'部队以半数兵力返回',run:A=>uBack(A,.5)},
-       {t:'向士兵喊话：你们第二次被骗了',d:'舆论 −10 · 部队以四分之一兵力返回',rq:'舆论10',req:()=>S.A.air>=10,run:A=>{S.A.air-=10;uBack(A,.25);}},
+       {t:'向士兵喊话：你们第二次被骗了',d:'媒体声量 −10 · 部队以四分之一兵力返回',rq:'媒体声量10',req:()=>S.A.air>=10,run:A=>{S.A.air-=10;uBack(A,.25);}},
        {t:'宣布被撤职的指挥官为代理人',d:'部队原地不动',rq:'合法性65',req:()=>S.leg>=65,run:A=>alog('士兵们听从原来的指挥官。')}]},
   {id:'floor', cond:A=>A.fire>=3, h:'十二层在燃烧', p:'火势沿电缆井向上蔓延。上面有代表大会的档案，还有来不及下来的人。',
    ch:[{t:'派人灭火',d:'民众 −150 · 火势 −5',run:A=>{S.ppl=Math.max(0,S.ppl-150);A.fire=Math.max(0,A.fire-5);}},
@@ -469,30 +469,30 @@ const INCIDENTS=[
        {t:'放弃这一层',d:'火势 +2 · 决心 −4',run:A=>{A.fire=Math.min(15,A.fire+2);S.hope=clamp(S.hope-4,0,100);}}]},
   {id:'wounded', cond:A=>A.wnd>=40, h:'第二十号入口的伤员', p:'绷带用完了，医生把床单剪开。街对面停着救护车，却被封锁线挡着不让进。',
    ch:[{t:'冒着火力把伤员抬出去',d:'伤员 −60% · 民兵 −20',run:A=>{A.wnd=Math.round(A.wnd*.4);S.mil=Math.max(0,S.mil-20);}},
-       {t:'请内务部军官开辟一条通道',d:'伤员已撤出 · 舆论 +10',rq:'内务部30',req:()=>S.pts.mvd>=30,run:A=>{A.wnd=0;A.air=Math.min(100,A.air+10);}},
+       {t:'请内务部军官开辟一条通道',d:'伤员已撤出 · 媒体声量 +10',rq:'内务部30',req:()=>S.pts.mvd>=30,run:A=>{A.wnd=0;A.air=Math.min(100,A.air+10);}},
        {t:'留到天黑',d:'决心 −6',run:A=>{S.hope=clamp(S.hope-6,0,100);}}]},
   {id:'cnn', cond:A=>true, h:'现场直播', p:'对面屋顶上的CNN摄像机把大楼画面传向全世界。摄影师挥手：给我们找个人入镜。',
-   ch:[{t:'哈斯布拉托夫走到窗前',d:'舆论 +20',run:A=>{A.air=Math.min(100,A.air+20);}},
-       {t:'让议员和妇女入镜，把持枪者撤下去',d:'舆论 +35',rq:'激进度不高于40%',req:()=>S.rad<=40,run:A=>{A.air=Math.min(100,A.air+35);}},
+   ch:[{t:'哈斯布拉托夫走到窗前',d:'媒体声量 +20',run:A=>{A.air=Math.min(100,A.air+20);}},
+       {t:'让议员和妇女入镜，把持枪者撤下去',d:'媒体声量 +35',rq:'激进度不高于40%',req:()=>S.rad<=40,run:A=>{A.air=Math.min(100,A.air+35);}},
        {t:'没空理会镜头',d:'决心 +2',run:A=>{S.hope=clamp(S.hope+2,0,100);}}]},
   {id:'snipers', cond:A=>true, h:'屋顶上的狙击手', p:'不明身份的枪手从屋顶上向你们这边和士兵们开火。双方都确信对方才是开枪者。',
    ch:[{t:'掩护人员',d:'外墙 −8',run:A=>{A.ctl.front=Math.max(1,A.ctl.front-8);}},
        {t:'由自己人解决这些枪手',d:'民兵 −15 · 决心 +4',rq:'民兵 150',req:()=>S.mil>=150,run:A=>{S.mil-=15;S.hope=clamp(S.hope+4,0,100);}},
-       {t:'在电视上声明：不是我们干的',d:'舆论 −10 · 内卫部队减弱',rq:'舆论30',req:()=>S.A.air>=30,run:A=>{A.air-=10;const u=A.units.find(x=>x.id==='vv');u.cur*=.75;}}]},
+       {t:'在电视上声明：不是我们干的',d:'媒体声量 −10 · 内卫部队减弱',rq:'媒体声量30',req:()=>S.A.air>=30,run:A=>{A.air-=10;const u=A.units.find(x=>x.id==='vv');u.cur*=.75;}}]},
   {id:'parley', cond:A=>A.r>=2, h:'谈判使者', p:'一名举白旗的军官提议停火半小时，让妇女和伤员撤离。他说，之后情况会更糟。',
    ch:[{t:'同意',d:'民众 −300 · 伤员已撤出 · 决心 −3',run:A=>{S.ppl=Math.max(0,S.ppl-300);A.wnd=0;S.hope=clamp(S.hope-3,0,100);}},
-       {t:'要求调停人：宗主教、法院、各地区',d:'舆论 +15 · 进攻减弱',rq:'合法性70',req:()=>S.leg>=70,run:A=>{A.air=Math.min(100,A.air+15);for(const u of A.units)u.cur*=.9;}},
+       {t:'要求调停人：宗主教、法院、各地区',d:'媒体声量 +15 · 进攻减弱',rq:'合法性70',req:()=>S.leg>=70,run:A=>{A.air=Math.min(100,A.air+15);for(const u of A.units)u.cur*=.9;}},
        {t:'拒绝',d:'决心 +3',run:A=>{S.hope=clamp(S.hope+3,0,100);}}]},
   {id:'hall', pic:'tank', cond:A=>A.units.find(u=>u.id==='tanks').cur>0, h:'大厅里的炮弹', p:'一发实心弹穿透了会议厅的墙壁。议员们趴在座椅之间。有人建议下到地下室。',
    ch:[{t:'全部去地下室',d:'决心 −4',run:A=>{S.hope=clamp(S.hope-4,0,100);}},
-       {t:'继续开会',d:'决心 +5 · 舆论 +10 · 10名议员将离开',rq:'决心 50%',req:()=>S.hope>=50,run:A=>{S.hope=clamp(S.hope+5,0,100);A.air=Math.min(100,A.air+10);S.fac.kol.n=Math.max(0,S.fac.kol.n-10);}}]},
+       {t:'继续开会',d:'决心 +5 · 媒体声量 +10 · 10名议员将离开',rq:'决心 50%',req:()=>S.hope>=50,run:A=>{S.hope=clamp(S.hope+5,0,100);A.air=Math.min(100,A.air+10);S.fac.kol.n=Math.max(0,S.fac.kol.n-10);}}]},
   {id:'ammo', cond:A=>A.r>=1, h:'弹药', p:'各入口每支枪只剩一个弹匣。指挥官们问，还能去哪里弄到更多。',
    ch:[{t:'单发射击',d:'弹药 +40 · 两个入口 −6',run:A=>{A.ammo+=40;A.ctl.entr=Math.max(1,A.ctl.entr-6);A.ctl.front=Math.max(1,A.ctl.front-6);}},
        {t:'从各层和非武装人员那里收集',d:'弹药 +100 · 民众 −80',rq:'民众 500',req:()=>S.ppl>=500,run:A=>{A.ammo+=100;S.ppl-=80;}},
        {t:'打开应急储备',d:'弹药 +200',rq:'武器300',req:()=>S.gun>=300,run:A=>{A.ammo+=200;}}]},
   {id:'crowd', cond:A=>S.city>=35, h:'河堤', p:'桥上和河堤上有成千上万的莫斯科人。有人像看电影一样观望，有人则准备走向大楼。',
    ch:[{t:'请他们离开火线',d:'决心 +1',run:A=>{S.hope=clamp(S.hope+1,0,100);}},
-       {t:'召集他们组成人墙',d:'一小时后 +800人 · 舆论 +10',rq:'莫斯科55%',req:()=>S.city>=55,run:A=>{A.incoming+=800;A.air=Math.min(100,A.air+10);}}]},
+       {t:'召集他们组成人墙',d:'一小时后 +800人 · 媒体声量 +10',rq:'莫斯科55%',req:()=>S.city>=55,run:A=>{A.incoming+=800;A.air=Math.min(100,A.air+10);}}]},
   {id:'water', cond:A=>A.fire>=2, h:'消防栓没水', p:'大楼的水一周前就断了。消防水管是空的，灭火器也快用完了。',
    ch:[{t:'冒着火力从河里提水',d:'民众 −120 · 火势 −4',run:A=>{S.ppl=Math.max(0,S.ppl-120);A.fire=Math.max(0,A.fire-4);}},
        {t:'用街垒上的沙袋压灭',d:'火势 −5 · 两个入口 −5',run:A=>{A.fire=Math.max(0,A.fire-5);A.ctl.entr=Math.max(1,A.ctl.entr-5);A.ctl.front=Math.max(1,A.ctl.front-5);}},
@@ -500,20 +500,20 @@ const INCIDENTS=[
   {id:'defect', cond:A=>A.units.some(u=>u.id==='taman'&&u.cur>0), h:'叛逃者', p:'一个摩托化步兵排伏在基座旁，没有开火。中尉喊道，他们不想参与此事。',
    ch:[{t:'喊他们离开',d:'摩托化步兵减弱',run:A=>{const u=A.units.find(x=>x.id==='taman');u.cur*=.85;}},
        {t:'带着武器把他们拉进来',d:'民兵 +30 · 武器 +60',rq:'总参谋部 40',req:()=>S.pts.gs>=40,run:A=>{S.mil+=30;S.gun+=60;const u=A.units.find(x=>x.id==='taman');u.cur*=.8;}},
-       {t:'在电视上展示他们',d:'舆论 +15',rq:'舆论20',req:()=>S.A.air>=20,run:A=>{A.air=Math.min(100,A.air+15);}}]},
+       {t:'在电视上展示他们',d:'媒体声量 +15',rq:'媒体声量20',req:()=>S.A.air>=20,run:A=>{A.air=Math.min(100,A.air+15);}}]},
   {id:'cellar', cond:A=>A.r>=2, h:'地下室', p:'防空洞里有数百名妇女、食堂工作人员、打字员和员工的孩子。他们再也上不来了。',
-   ch:[{t:'从第二十号入口带出去',d:'民众 −200 · 舆论 +10 · 入口 −6',run:A=>{S.ppl=Math.max(0,S.ppl-200);A.air=Math.min(100,A.air+10);A.ctl.entr=Math.max(1,A.ctl.entr-6);}},
+   ch:[{t:'从第二十号入口带出去',d:'民众 −200 · 媒体声量 +10 · 入口 −6',run:A=>{S.ppl=Math.max(0,S.ppl-200);A.air=Math.min(100,A.air+10);A.ctl.entr=Math.max(1,A.ctl.entr-6);}},
        {t:'留在地下室，直到天黑',d:'决心 −3',run:A=>{S.hope=clamp(S.hope-3,0,100);}}]},
   {id:'btr', cond:A=>A.r>=3, h:'战利品', p:'正门旁停着一辆被弃的装甲输送车，弹药装满。车组已经逃跑。',
    ch:[{t:'烧掉，别让他们拿去',d:'正门 +4',run:A=>{A.ctl.front=Math.min(100,A.ctl.front+4);}},
-       {t:'让自己人上车，调转机枪',d:'正门 +15 · 武器 +80 · 舆论 −10',rq:'民兵 250',req:()=>S.mil>=250,run:A=>{A.ctl.front=Math.min(100,A.ctl.front+15);S.gun+=80;A.air=Math.max(0,A.air-10);}}]},
+       {t:'让自己人上车，调转机枪',d:'正门 +15 · 武器 +80 · 媒体声量 −10',rq:'民兵 250',req:()=>S.mil>=250,run:A=>{A.ctl.front=Math.min(100,A.ctl.front+15);S.gun+=80;A.air=Math.max(0,A.air-10);}}]},
   {id:'planes', cond:A=>A.r>=1, h:'鲁茨科伊的无线电', p:'副总统对着公开频道大喊：“同志们，起飞战机！”飞行员、记者和克里姆林宫都听到了。',
-   ch:[{t:'让他去喊',d:'决心 +4 · 舆论 −15',run:A=>{S.hope=clamp(S.hope+4,0,100);A.air=Math.max(0,A.air-15);}},
-       {t:'拿下电台：请世界出面调停',d:'舆论 +10',rq:'决心 40%',req:()=>S.hope>=40,run:A=>{A.air=Math.min(100,A.air+10);}}]},
+   ch:[{t:'让他去喊',d:'决心 +4 · 媒体声量 −15',run:A=>{S.hope=clamp(S.hope+4,0,100);A.air=Math.max(0,A.air-15);}},
+       {t:'拿下电台：请世界出面调停',d:'媒体声量 +10',rq:'决心 40%',req:()=>S.hope>=40,run:A=>{A.air=Math.min(100,A.air+10);}}]},
   {id:'truce', cond:A=>A.r>=6, h:'一小时的寂静', p:'克里姆林宫提议停火一小时，用来收容伤员。双方都知道，在这一小时里预备队会赶到。',
    ch:[{t:'同意',d:'伤员已撤出 · 两个入口 +6 · 克里姆林宫部队增强',run:A=>{A.wnd=0;A.ctl.entr=Math.min(100,A.ctl.entr+6);A.ctl.front=Math.min(100,A.ctl.front+6);for(const u of A.units)if(u.cur>3)u.cur*=1.12;}},
        {t:'拒绝',d:'决心 +2',run:A=>{S.hope=clamp(S.hope+2,0,100);}},
-       {t:'同意，并把记者带到伤员处',d:'同上 · 舆论 +20',rq:'舆论 25',req:()=>S.A.air>=25,run:A=>{A.wnd=0;A.air=Math.min(100,A.air+20);A.ctl.entr=Math.min(100,A.ctl.entr+6);A.ctl.front=Math.min(100,A.ctl.front+6);for(const u of A.units)if(u.cur>3)u.cur*=1.12;}}]},
+       {t:'同意，并把记者带到伤员处',d:'同上 · 媒体声量 +20',rq:'媒体声量 25',req:()=>S.A.air>=25,run:A=>{A.wnd=0;A.air=Math.min(100,A.air+20);A.ctl.entr=Math.min(100,A.ctl.entr+6);A.ctl.front=Math.min(100,A.ctl.front+6);for(const u of A.units)if(u.cur>3)u.cur*=1.12;}}]},
   {id:'rne', cond:A=>S.fac.rne.n>0, h:'巴尔卡绍夫的人离开', p:'RNE找到了通往地下下水道的路，打算趁为时未晚离开。三分之一的枪械将随他们带走。',
    ch:[{t:'放他们走',d:'RNE离开大楼',run:A=>{S.fac.rne.n=0;}},
        {t:'在队列前使他们蒙羞',d:'留下 · 决心 +2',rq:'决心60%',req:()=>S.hope>=60,run:A=>{S.hope=clamp(S.hope+2,0,100);}},
@@ -555,13 +555,13 @@ const A_ORDERS=[
 ];
 // ---------- the air during the assault: what you ask the world for. One request an hour, paid in Эфир ----------
 const AIR=[
-  {t:'召唤莫斯科人到大楼来', cost:10, d:()=>`一小时后 ${fmt(300+S.city*10)} 人会来`, run:A=>{A.incoming+=300+S.city*10;alog('舆论：莫斯科人被号召前往白宫。');}},
+  {t:'召唤莫斯科人到大楼来', cost:10, d:()=>`一小时后 ${fmt(300+S.city*10)} 人会来`, run:A=>{A.incoming+=300+S.city*10;alog('媒体声量：莫斯科人被号召前往白宫。');}},
   {t:'请求停火，以便撤离伤员', cost:8, d:()=>`${Math.round(Math.min(.9,.3+S.A.air/100)*100)}%几率：伤员撤出，决心 +3`, req:()=>S.A.wnd>=20||'伤员不多',
    run:A=>{if(Math.random()<Math.min(.9,.3+A.air/100)){A.wnd=0;S.hope=clamp(S.hope+3,0,100);alog('火力停了二十分钟。救护车带走了伤员。');}else alog('停火被拒绝。','bad');}},
   {t:'向士兵喊话：不要开枪', cost:12, d:()=>`${Math.round(Math.min(.45,.1+S.A.air/200)*100)}%几率一支动摇的部队停下；否则进攻压力 −6%`,
    run:A=>{const g=A.units.filter(u=>uState(u)==='waver').sort((a,b)=>a.cur-b.cur)[0];
      if(g&&Math.random()<Math.min(.45,.1+A.air/200)){g.cur=0;g.st='stopped';alog(UNITS.find(x=>x.id===g.id).nm+'：听到了呼吁，停止了开火。');}else{for(const u of A.units){u.cur*=.94;uMor(u,-5);}alog('士兵们听着，但命令就是命令。火力变得稀疏了。');}}},
-  {t:'向世界展示大火和伤员', cost:0, d:()=>'舆论 +15', run:A=>{A.air=Math.min(100,A.air+15);alog('燃烧的议会画面播向全球各大频道。');}},
+  {t:'向世界展示大火和伤员', cost:0, d:()=>'媒体声量 +15', run:A=>{A.air=Math.min(100,A.air+15);alog('燃烧的议会画面播向全球各大频道。');}},
   {t:'点名那些下达命令的指挥官', cost:10, d:()=>'坦克 −25%，坦克车组士气 −15，激进度 +3', req:()=>S.A.units.find(u=>u.id==='tanks').cur>0||'坦克沉默',
    run:A=>{A.units.find(u=>u.id==='tanks').cur*=.75;uMor(A.units.find(u=>u.id==='tanks'),-15);S.rad=clamp(S.rad+3,0,100);alog('电视上宣读了姓名和部队番号。两个车组关掉了引擎。');}},
   {t:'请求法院和各地区出面调停', cost:15, d:()=>'进攻 −10%，决心 +4', req:()=>S.leg>=50||'需要合法性 50',
@@ -571,10 +571,10 @@ const AIR=[
 ];
 const airGain=()=>1+Math.floor(OUTLETS.filter(o=>outSt(S,o)==='vs').length/4)+(S.pts.ost>=100?2:0);
 const airCost=o=>o.cost*(S.flags.noComms?2:1);
-function airState(i){const o=AIR[i],A=S.A; if(A.airUsed)return '这个时候已经出来了'; if(S.A.air<airCost(o))return '需要 '+airCost(o)+' 舆论'; const r=o.req?o.req():true; return r;}
+function airState(i){const o=AIR[i],A=S.A; if(A.airUsed)return '这个时候已经出来了'; if(S.A.air<airCost(o))return '需要 '+airCost(o)+' 媒体声量'; const r=o.req?o.req():true; return r;}
 function openAir(){const A=S.A; if(!A||screen!=='assault'||A.card)return;
-  $('modal-win').innerHTML=`<h2>来自白宫的舆论</h2><div class="sub">舆论：<b style="color:var(--paper)">${Math.round(A.air)}</b>（满分100），你们的媒体每小时 +${airGain()}。舆论高时，世界都在看：进攻减弱，部队士气下降，从60起，动摇的部队可能停下。呼吁会消耗舆论。每小时一次请求，命令不消耗舆论。${S.flags.noComms?' <span class="n">通讯中断，只能通过外国人发布舆论：一切成本翻倍。</span>':''}舆论越高，进攻越弱，你们也越容易被听见。</div><div class="app2">`+
-    AIR.map((o,i)=>{const st=airState(i);return `<div class="law${st!==true?' lock':''}" data-i="${i}"><div class="t">${o.t} <span class="cst">${airCost(o)?"舆论 −"+airCost(o):"免费"}</span></div><div class="e">${st===true?o.d():`<span class="n">${st}</span>`}</div></div>`;}).join('')+
+  $('modal-win').innerHTML=`<h2>白宫的媒体声量</h2><div class="sub">媒体声量：<b style="color:var(--paper)">${Math.round(A.air)}</b>（满分100），你们的媒体每小时 +${airGain()}。媒体声量高时，世界都在看：进攻减弱，部队士气下降，从60起，动摇的部队可能停下。呼吁会消耗媒体声量。每小时一次请求，命令不消耗媒体声量。${S.flags.noComms?' <span class="n">通讯中断，只能通过外国人向外界发声：一切成本翻倍。</span>':''}媒体声量越高，进攻越弱，你们也越容易被听见。</div><div class="app2">`+
+    AIR.map((o,i)=>{const st=airState(i);return `<div class="law${st!==true?' lock':''}" data-i="${i}"><div class="t">${o.t} <span class="cst">${airCost(o)?"媒体声量 −"+airCost(o):"免费"}</span></div><div class="e">${st===true?o.d():`<span class="n">${st}</span>`}</div></div>`;}).join('')+
     `</div><div class="close">ESC — 关闭</div>`;
   $('modal').classList.add('on');
   $('modal-win').querySelectorAll('.law').forEach(e=>e.onclick=()=>{const i=+e.dataset.i; if(airState(i)!==true)return; Sfx.play('static');Sfx.play('pips',.7); S.A.air-=airCost(AIR[i]); A.airUsed=1; AIR[i].run(A); $('modal').classList.remove('on'); save(); renderAssault();});
@@ -595,7 +595,7 @@ function renderAssault(){
   const fireL=A.fire>0?Math.round(A.fire/5):0, wndL=A.wnd>=40?Math.min(6,Math.round(A.wnd/80)):0;
   const R=[['ppl','民众',fmt(S.ppl),''],['mil','民兵',fmt(S.mil),A.ammo<=0?'<span class="n">没有弹药</span>':''],
     ['hope','决心',S.hope+'%',[A.fire>0?'火势'+(fireL?' −'+fireL:'')+'':'',A.wnd>=20?'伤员 '+fmt(A.wnd)+(wndL?' −'+wndL:''):''].filter(Boolean).map(x=>'<span class="n">'+x+'</span>').join(' · ')],
-    ['stk','补给',fmt(A.stock||0),''],['air','舆论',Math.round(A.air),'<span class="p">+'+airGain()+' 每小时</span>']];
+    ['stk','补给',fmt(A.stock||0),''],['air','媒体声量',Math.round(A.air),'<span class="p">+'+airGain()+' 每小时</span>']];
   $('a-res').innerHTML=R.map(([k,nm,v,sub])=>`<div class="r"><div class="k">${nm}</div><div class="v${(k==='hope'&&S.hope<30)?' warn':''}">${v}${sub?` <small style="font-size:13px;font-family:'Tiny5'">${sub}</small>`:''}</div></div>`).join('');
   // section
   const att={entr:0,front:0};for(const u of A.units){const t=UNITS.find(x=>x.id===u.id).target;if(t!=='tower')att[t]+=uEff(u)/3;}
